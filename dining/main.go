@@ -23,15 +23,26 @@ var philosophers = []Philosopher{
 var hunger = 3
 var eatTime = 1 * time.Second
 var thinkTime = 3 * time.Second
+var sleepTime = 1 * time.Second
+
+var orderMutex sync.Mutex
+var leavingOrder []string
 
 func main() {
 	fmt.Println("Dining Philosophers Problem")
 	fmt.Println("---------------------------")
 	fmt.Println("The table is empty.")
 
+	time.Sleep(sleepTime)
+
 	dine()
 
 	fmt.Println("The table is empty.")
+
+	fmt.Println("\nOrder in which philosophers left the table:")
+	for i, name := range leavingOrder {
+		fmt.Printf("%d. %s\n", i+1, name)
+	}
 }
 
 func dine() {
@@ -90,4 +101,8 @@ func diningProblem(philosopher Philosopher, wg *sync.WaitGroup, forks map[int]*s
 
 	fmt.Println(philosopher.name, "is satisfied.")
 	fmt.Println(philosopher.name, "left the table.")
+
+	orderMutex.Lock()
+	leavingOrder = append(leavingOrder, philosopher.name)
+	orderMutex.Unlock()
 }
